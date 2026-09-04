@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat multi-modelo &middot; OpenRouter</title>
+<link rel="stylesheet" href="/estilos.css">
+</head>
+<body>
+
+<aside class="panel">
+  <header class="marca">
+    <h1>Prompt minimo</h1>
+    <p>Chat multi-modelo sobre OpenRouter</p>
+  </header>
+
+  <section>
+    <h2>Modelo</h2>
+    <div id="modelos" class="modelos"></div>
+    <p class="aviso">Cambiar de modelo empieza una conversacion nueva.</p>
+  </section>
+
+  <section id="controles" class="controles"></section>
+
+  <section class="totales">
+    <h2>Conversacion</h2>
+    <dl>
+      <div><dt>Turnos</dt><dd id="turnos">0</dd></div>
+      <div><dt>Gasto</dt><dd id="gasto">$0.000000</dd></div>
+    </dl>
+    <p class="log">Log: <span id="log">—</span></p>
+  </section>
+</aside>
+
+<main>
+  <div id="chat" class="chat">
+    <div class="vacio">
+      <h3>Elegi un modelo y escribi</h3>
+      <p>Debajo de cada respuesta vas a ver los tokens de entrada, salida, razonamiento y
+         cacheados, y el costo en dolares que devuelve la API.</p>
+    </div>
+  </div>
+
+  <form id="compositor" class="compositor">
+    <textarea id="texto" rows="3" placeholder="Escribi tu mensaje.  Enter manda, Shift+Enter hace salto de linea."></textarea>
+    <div class="acciones">
+      <label class="boton secundario">
+        Cargar archivo
+        <input type="file" id="archivo" accept=".md,.txt,.py" hidden>
+      </label>
+      <button type="submit" class="boton" id="mandar">Mandar</button>
+    </div>
+  </form>
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>
