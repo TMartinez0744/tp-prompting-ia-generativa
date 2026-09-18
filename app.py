@@ -326,7 +326,7 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     cargar_env()
     if not os.environ.get("OPENROUTER_API_KEY"):
-        print("Aviso: falta OPENROUTER_API_KEY. Copia .env.example a .env y pone la key ahi.")
+        print("Aviso: falta OPENROUTER_API_KEY en .env. El formato esta en .env.example.")
     servidor = ThreadingHTTPServer(("127.0.0.1", PUERTO), Handler)
     url = "http://localhost:%d" % PUERTO
     print("Interfaz en %s  (Ctrl+C para cortar)" % url)

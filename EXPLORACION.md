@@ -13,7 +13,7 @@ Todas las cifras salen de dos fuentes consultadas el **2026-09-17**:
 
 ## 1. Qué es un router de modelos
 
-**Un router recibe el pedido y elige por vos a qué modelo mandarlo según la tarea que detecta;
+**Un router recibe el pedido y elige a qué modelo mandarlo según la tarea que detecta;
 resuelve el problema de tener que decidir y mantener a mano qué modelo conviene para cada
 pedido, y de quedar atado a uno cuando cambia el catálogo, el precio o la disponibilidad.**
 
@@ -75,7 +75,7 @@ Lo que se lee en esa tabla:
 
 ## 3. Los cuatro slots del ejercicio 1
 
-Los cuatro ids del enunciado (verificados por la cátedra al 2026-09-02) **siguen vigentes en el
+Los cuatro ids del enunciado (verificados al 2026-09-02) **siguen vigentes en el
 catálogo al 2026-09-17**: ninguno hizo falta reemplazar.
 
 | Slot | Modelo | Entrada | Salida | Contexto | Puesto (score) | Uso del día |
