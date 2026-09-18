@@ -2,16 +2,26 @@
 
 ## Método
 
+El trabajo previo —qué es un router, el mapa de los siete proveedores y la comparación de
+parámetros— está en [`EXPLORACION.md`](EXPLORACION.md). De ahí salen los precios con los que se
+reconcilia cada costo de este informe (catálogo consultado el 2026-09-17).
+
 Ninguna cifra de este informe se escribió a mano. Todas salen de la línea `**Usage**` de los
 logs de `logs/`, que es el `usage` que devolvió la API, y se suman con:
 
 ```bash
-python herramientas/cuenta.py            # todas las conversaciones
-python herramientas/cuenta.py --slot 4   # las del ejercicio 2
+python herramientas/cuenta.py
 ```
 
-Los precios usados para reconciliar son los del catálogo (`EXPLORACION.md`, consultado el
-2026-09-17). Cada costo informado se verifica contra la tarifa en las secciones que siguen.
+Las cuatro conversaciones del ejercicio 2 se suman pasando sus logs de forma explícita. El filtro
+`--slot 4` no sirve para esto: incluye también la prueba del slot 4 del ejercicio 1 y la
+comparación de §2, y da $0.006566 en lugar de $0.006252.
+
+```bash
+python herramientas/cuenta.py logs/20260918-003247-slot4-deepseek-v4-flash-0731.md logs/20260918-003740-slot4-deepseek-v4-flash-0731.md logs/20260918-004105-slot4-deepseek-v4-flash-0731.md logs/20260918-004158-slot4-deepseek-v4-flash-0731.md
+```
+
+Cada costo informado se verifica contra la tarifa en las secciones que siguen.
 
 ## 1. El ejercicio 2, intento por intento
 
@@ -72,9 +82,20 @@ proveedor**. OpenRouter reparte este modelo entre 28 proveedores con tokenizacio
 distintas: el reenvío 2 cayó en StreamLake y el prefijo no coincidió con el de Relace, así que
 volvió con `cached_tokens` en 0.
 
-Fijando el proveedor en `app.py` (`provider.order = ["Relace"]`, la misma solución que ya tenía
-el slot 2 con Anthropic), el reenvío 4 acertó: **1.280 de 1.327 tokens de entrada servidos desde
-cache, el 96,5%**. La cuenta cierra con la tarifa de lectura de Relace, $0.012 por millón:
+Se fijó el proveedor en `app.py` (`provider.order = ["Relace"]`, la misma solución que ya tenía
+el slot 2 con Anthropic). Aun así, el reenvío 3 volvió con `cached_tokens` en 0, pese a caer en
+el mismo proveedor que el intento ganador. Hay dos causas compatibles con los datos, y los datos
+no alcanzan para distinguirlas:
+
+- **El effort cambia lo que recibe el proveedor.** El mismo texto, en el mismo proveedor, midió
+  1.406 tokens de entrada con `high` (intento 1) y 1.327 con `medium` (reenvío 3). Si esa
+  diferencia está al principio del pedido, el prefijo cacheado por el intento 1 no le servía a
+  ningún pedido en `medium`.
+- **El cache pudo haber vencido.** Entre el intento 1 y el reenvío 3 pasaron nueve minutos.
+
+En cualquiera de los dos casos, el reenvío 3 escribió el prefijo y el 4, un minuto después, lo
+leyó: **1.280 de 1.327 tokens de entrada servidos desde cache, el 96,5%**. La cuenta cierra con
+la tarifa de lectura de Relace, $0.012 por millón:
 
 ```
 47 x $0.06/M + 1.280 x $0.012/M + 5.508 x $0.12/M = $0.000679   (informado: $0.000679)
@@ -157,28 +178,46 @@ El 88,1% de los tokens de salida de todo el repositorio fueron pensamiento (62.5
 
 ### Contraste contra la cuenta de OpenRouter
 
-`GET /api/v1/key` informa **$0.121482** consumidos por la key, contra **$0.056525** sumados de
-los logs. La diferencia es de **$0.064957**, y no es un error de contabilidad de los logs:
+No se tuvo acceso al dashboard de actividad de la cuenta, así que el contraste se hace contra el
+consumo que informa `GET /api/v1/key`, que es el total acumulado de la key.
 
-- Antes de las corridas de hoy la key marcaba $0.115230 con $0.048461 en logs: la misma brecha
-  de ~$0.0668 ya existía.
-- Corresponde a las mediciones del umbral de cache del slot 2 que documenta `SPEC.md` §1, hechas
-  contra la API durante el desarrollo de la interfaz, antes de que existiera el registro en
-  `logs/`. Por definición no tienen log.
-- La lectura de la key va unos segundos atrás: los $0.001812 de la comparación de §2 ya están en
-  los logs y todavía no en el total de la key.
+La key informa **$0.123294** consumidos, contra **$0.056525** sumados de los logs del
+repositorio. La diferencia, **$0.066769**, corresponde a llamadas del 2026-09-04 hechas durante
+la depuración de la interfaz, cuyos logs se descartaron del repositorio por no formar parte de
+la entrega. Las cifras se tomaron de esos logs antes de descartarlos:
 
-**Queda por confirmar contra el dashboard** (openrouter.ai/activity), que muestra el detalle por
-request y permite identificar una por una las llamadas sin log. Crédito restante: $0.878518 de
-$1.
+| Hora (UTC−3) | Modelo | Qué era | Costo |
+|---|---|---|---|
+| 17:54 | `deepseek/deepseek-v4-flash-0731` | Primera llamada con la key | $0.000149 |
+| 17:54 | `openai/gpt-5.6-luna` | Effort `low`, primera tanda del ejercicio 1 | $0.001834 |
+| 17:55 | `openai/gpt-5.6-luna` | Effort `high`, primera tanda del ejercicio 1 | $0.017395 |
+| 17:56 | `openai/gpt-5.6-luna` | Mensaje manual que se mezcló en la conversación anterior | $0.001357 |
+| 17:57 | `anthropic/claude-haiku-4.5` ×2 | Cache sin proveedor fijo: no escribió cache | $0.010333 |
+| 17:57 | `google/gemini-3.7-flash` | JSON Schema, primera tanda del ejercicio 1 | $0.003542 |
+| 17:59 | `anthropic/claude-haiku-4.5` ×2 | Repetición de la anterior | $0.010380 |
+| 18:00 – 18:03 | `anthropic/claude-haiku-4.5` ×4 | Sondas para ubicar el umbral cacheable (§2) | $0.019005 |
+| 18:15 – 18:19 | `openai/gpt-5.6-luna` ×4 | Pruebas de la interfaz tras corregir un defecto | $0.002774 |
+| | | **Total** | **$0.066769** |
+
+Ninguna corresponde al ejercicio 2:
+
+- Todas son del 4 de septiembre. El ejercicio 2 se corrió el 18.
+- Antes de las corridas del 18, la key marcaba $0.115230 contra $0.048461 en logs: la misma
+  diferencia de $0.066769, al sexto decimal. Todo lo gastado después está en `logs/`.
+
+Las pruebas de la interfaz incluyen $0.000018 obtenidos por diferencia: el log de una de ellas se
+descartó sin registrar su costo. Todo lo demás sale de los logs.
+
+Crédito restante: $0.876706 de $1.
 
 ## 4. Conclusión
 
 **Bajar el effort de `high` a `medium` en el slot 4.** Los cuatro envíos del mismo prompt
 pasaron los nueve tests, y el de `medium` con proveedor fijo costó $0.000876 contra los
 $0.003646 del ganador en `high`: **4,2 veces menos por el mismo resultado**. El acierto vino de
-la especificación, no del presupuesto de pensamiento; `high` queda reservado para un eventual
-segundo intento.
+la especificación, no del presupuesto de pensamiento. El effort se mantiene en `medium` también
+en un eventual segundo intento: cambiarlo puede alterar el prefijo y perder el cache que ese
+intento tiene que mostrar (§1).
 
 **Fijar el proveedor del slot 4, no dejarlo al reparto de OpenRouter.** Sin `provider.order` el
 prefijo cae en un proveedor distinto cada vez, el cache nunca acierta y la tarifa varía hasta 7x
