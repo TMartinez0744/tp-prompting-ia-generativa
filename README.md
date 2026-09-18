@@ -28,14 +28,15 @@ y queda disponible en `http://localhost:8000`.
 ## Modelos
 
 Un slot por proveedor, cada uno destinado a ejercitar una capacidad distinta. Los precios son
-por millón de tokens, verificados contra `GET https://openrouter.ai/api/v1/models`.
+por millón de tokens, verificados contra `GET https://openrouter.ai/api/v1/models` el
+2026-09-17.
 
 | Slot | Modelo | Entrada | Salida | Contexto | Capacidad |
 |---|---|---|---|---|---|
 | 1 | `openai/gpt-5.6-luna` | $0.20 | $1.20 | 1.050.000 | `reasoning.effort` configurable |
 | 2 | `anthropic/claude-haiku-4.5` | $1.00 | $5.00 | 200.000 | caching explícito con `cache_control` |
 | 3 | `google/gemini-3.7-flash` | $0.75 | $3.75 | 1.048.576 | salidas estructuradas con JSON Schema |
-| 4 | `deepseek/deepseek-v4-flash-0731` | $0.065 | $0.18 | 1.310.720 | referencia de bajo costo |
+| 4 | `deepseek/deepseek-v4-flash-0731` | $0.06 | $0.12 | 1.310.720 | referencia de bajo costo |
 
 ## Funcionamiento
 
@@ -78,4 +79,7 @@ bordes y generación cero.
 ## Documentación
 
 - [`SPEC.md`](SPEC.md) — especificación de la interfaz y del contrato de `vida.py`.
+- [`EXPLORACION.md`](EXPLORACION.md) — el router, el mapa de modelos y los parámetros de cada
+  proveedor, con las cifras del catálogo.
+- [`prompts/prompt_vida.md`](prompts/prompt_vida.md) — el prompt con el que se pide `vida.py`.
 - [`CLAUDE.md`](CLAUDE.md) — instrucciones para los agentes de IA que trabajen en el repositorio.

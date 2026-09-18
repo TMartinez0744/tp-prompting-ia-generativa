@@ -16,14 +16,15 @@ Se inicia con `python app.py`, que abre el navegador automáticamente.
 ### Modelos
 
 Cuatro slots, un proveedor cada uno. Los precios son por millón de tokens, verificados contra
-`GET https://openrouter.ai/api/v1/models`.
+`GET https://openrouter.ai/api/v1/models` el 2026-09-17. El detalle del catálogo está en
+`EXPLORACION.md`.
 
 | Slot | Modelo | Entrada | Salida | Contexto | Capacidad que ejercita |
 |---|---|---|---|---|---|
 | 1 | `openai/gpt-5.6-luna` | $0.20 | $1.20 | 1.050.000 | `reasoning.effort` configurable |
 | 2 | `anthropic/claude-haiku-4.5` | $1.00 | $5.00 | 200.000 | caching explícito con `cache_control` |
 | 3 | `google/gemini-3.7-flash` | $0.75 | $3.75 | 1.048.576 | salidas estructuradas por JSON Schema |
-| 4 | `deepseek/deepseek-v4-flash-0731` | $0.065 | $0.18 | 1.310.720 | referencia de bajo costo: 15x menos que el slot 2 |
+| 4 | `deepseek/deepseek-v4-flash-0731` | $0.06 | $0.12 | 1.310.720 | referencia de bajo costo: 16,7x menos que el slot 2 en entrada |
 
 ### Comportamiento
 
@@ -101,6 +102,27 @@ variantes.
 
 `vida.py` se obtiene del chat; no se escribe ni se parchea a mano. Entre intentos se corrige el
 prompt.
+
+### El prompt
+
+El prompt vive en `prompts/prompt_vida.md` y se manda a la conversación con el botón "Cargar
+archivo" de la interfaz. Retipearlo altera el texto, y cualquier diferencia de un carácter
+rompe el prefijo y elimina el cache hit.
+
+El archivo está ordenado para que el cache de DeepSeek, que es automático por prefijo repetido,
+acierte a partir del segundo intento:
+
+- Todo lo anterior a `## Tarea` es el **prefijo estático**: rol, contexto, contrato,
+  restricciones, ejemplos, checklist de verificación y formato de respuesta. No se modifica
+  entre intentos.
+- `## Tarea` es la **cola variable**, lo único que se reescribe cuando un intento se quema.
+
+El orden es una decisión de costo, no de estilo: si la parte que cambia estuviera al principio,
+el prefijo dejaría de coincidir y cada intento se pagaría a tarifa plena.
+
+Los seis ejemplos son few-shot de los casos que discriminan una implementación correcta de las
+equivocaciones habituales: generación cero sin transiciones, oscilador con período 2,
+naturaleza muerta, muerte por soledad, nacimiento por tres vecinas y borde sin wrap-around.
 
 ## 3. Verificación
 
