@@ -82,4 +82,5 @@ bordes y generación cero.
 - [`EXPLORACION.md`](EXPLORACION.md) — el router, el mapa de modelos y los parámetros de cada
   proveedor, con las cifras del catálogo.
 - [`prompts/prompt_vida.md`](prompts/prompt_vida.md) — el prompt con el que se pide `vida.py`.
+- [`INFORME.md`](INFORME.md) — la cuenta final: tokens, cache y gasto de cada intento.
 - [`CLAUDE.md`](CLAUDE.md) — instrucciones para los agentes de IA que trabajen en el repositorio.

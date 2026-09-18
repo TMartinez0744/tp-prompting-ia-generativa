@@ -83,6 +83,13 @@ vive en un archivo versionado: retipearla altera el texto y rompe el prefijo cac
 - Slot 4 (DeepSeek): automático por prefijo repetido. No hay parámetro que lo active: depende
   del diseño del prompt, con la parte invariante al principio y la parte variable al final.
 
+  Pero eso no alcanza: **el proveedor tiene que ser el mismo entre pedidos**. OpenRouter reparte
+  este modelo entre 28 proveedores con tarifas que varían hasta 7x, y dos pedidos idénticos
+  atendidos por proveedores distintos no comparten prefijo. Medido: el mismo prompt cayó en
+  StreamLake y volvió con `cached_tokens` en 0; fijando `"provider": {"order": ["Relace"]}`, el
+  reenvío acertó 1.280 de 1.327 tokens. Relace es el proveedor cuya tarifa publica el catálogo,
+  $0.06 y $0.12 por millón, con lectura de cache a $0.012.
+
 ### Credenciales
 
 `OPENROUTER_API_KEY` se lee de `.env` en la raíz. `.env` está en `.gitignore` y no se versiona;

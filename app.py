@@ -62,12 +62,17 @@ SLOTS = {
         "id": "deepseek/deepseek-v4-flash-0731",
         "alias": "DeepSeek V4 Flash",
         "proveedor": "DeepSeek",
-        "precio_in": 0.065,
-        "precio_out": 0.18,
+        "precio_in": 0.06,
+        "precio_out": 0.12,
         "contexto": 1310720,
         "capacidad": "El escalon barato",
         "control": "effort",
         "razona": True,
+        # 28 proveedores sirven este modelo y OpenRouter reparte entre ellos. Dos pedidos
+        # identicos atendidos por proveedores distintos no comparten prefijo, asi que el cache
+        # automatico de DeepSeek nunca acierta, y encima cada proveedor cobra su propia tarifa.
+        # Relace es el que publica el precio del catalogo, $0.06 y $0.12 por millon.
+        "proveedor_forzado": "Relace",
     },
 }
 
